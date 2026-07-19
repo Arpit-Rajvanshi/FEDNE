@@ -1,0 +1,51 @@
+dataset:
+  name: MNIST                  # MNIST, FashionMNIST
+  data_dir: ./data
+
+partition:
+  type: dirichlet               # iid, dirichlet, shards
+  alpha: 0.2                    # for dirichlet
+  shards_per_client: 2          # for shards
+
+federated:
+  clients: 20
+  rounds: 200
+  local_epochs: 1
+  device: cuda                  # cuda, cpu
+
+model:
+  embedding_dim: 2
+  hidden_dims: [512, 256, 128]
+
+graph:
+  k: 15
+  negative_samples: 5
+  with_replacement: true
+
+augmentation:
+  enabled: true
+  alpha: 0.2
+  mixup_ratio: 1.0
+
+surrogate:
+  hidden_dim: 64
+  grid_step: 0.3
+  margin: 0.5
+  lr: 0.001
+  epochs: 5
+  start_round: 0                # disabled warm-up by default, set to e.g. 60 for 30% warm-up in 200 rounds
+
+optimizer:
+  lr: 0.001
+  weight_decay: 0.0
+  lr_decay_rounds: [60, 120]    # 30% and 60% of total rounds (200)
+  lr_decay_factor: 0.1
+
+logging:
+  tensorboard: true
+  log_dir: ./runs
+  checkpoint_dir: ./checkpoints
+  output_dir: ./outputs
+  log_frequency: 1              # Log metrics every round
+  visualize_frequency: 5        # Generate visualization plots every 5 rounds
+  seed: 42

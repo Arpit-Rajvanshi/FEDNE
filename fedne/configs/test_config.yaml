@@ -1,0 +1,50 @@
+dataset:
+  name: MNIST
+  data_dir: ./data
+
+partition:
+  type: iid
+
+federated:
+  clients: 2
+  rounds: 2
+  local_epochs: 1
+  device: cpu                  # Test on CPU to avoid CUDA dependency issues during test
+
+model:
+  embedding_dim: 2
+  hidden_dims: [128, 64]
+
+graph:
+  k: 5
+  negative_samples: 2
+  with_replacement: true
+
+augmentation:
+  enabled: true
+  alpha: 0.2
+  mixup_ratio: 0.5
+
+surrogate:
+  hidden_dim: 16
+  grid_step: 1.5               # Large grid step for extremely fast surrogate training
+  margin: 0.5
+  lr: 0.01
+  epochs: 1
+  start_round: 0
+
+optimizer:
+  lr: 0.01
+  weight_decay: 0.0
+  lr_decay_rounds: [1]
+  lr_decay_factor: 0.5
+
+logging:
+  tensorboard: false           # Disable TB to avoid extra directories
+  log_dir: ./test_runs
+  checkpoint_dir: ./test_checkpoints
+  output_dir: ./test_outputs
+  log_frequency: 1
+  visualize_frequency: 1
+  seed: 42
+  eval_subset_size: 50         # Very small subset for extremely fast evaluation
