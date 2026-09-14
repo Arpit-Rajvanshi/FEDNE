@@ -1,0 +1,41 @@
+dataset:
+  name: "MNIST"
+  data_dir: "./data"
+  num_clients: 2
+  partition: "iid"
+  alpha: 0.5
+
+model:
+  input_dim: 784
+  embedding_dim: 2
+  hidden_dims: [512, 256, 128]
+  embedding_regularization:
+    enabled: false
+    coefficient: 0.001
+
+anchors:
+  num_anchors: 5
+  initialization: "kmeans"  # Options: kmeans, farthest_point, representative_points
+
+loss:
+  lambda_attraction: 1.0
+  lambda_anchor: 1.0
+  lambda_anchor_repulsion: 1.0
+  eps: 1e-7
+  anchor_repulsion:
+    normalization: "scale"  # Options: none, scale
+    scale: 0.01             # Configurable scale factor for repulsion
+  balancing:
+    enabled: false          # Optional initial loss balancing
+
+graph:
+  k: 5
+
+seed:
+  value: 42
+
+evaluation:
+  enabled: true
+  save_visualizations: true
+  output_dir: "./fedanchor/outputs"
+  checkpoint_dir: "./fedanchor/checkpoints"

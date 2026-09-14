@@ -1,0 +1,20 @@
+test_anchor_coverage_loss_finite (test_anchor_components.TestAnchorComponents.test_anchor_coverage_loss_finite) ... ok
+test_anchor_coverage_zero_on_exact_centroids (test_anchor_components.TestAnchorComponents.test_anchor_coverage_zero_on_exact_centroids) ... ok
+test_anchor_initialization_strategies (test_anchor_components.TestAnchorComponents.test_anchor_initialization_strategies) ... ok
+test_anchor_repulsion_loss_finite (test_anchor_components.TestAnchorComponents.test_anchor_repulsion_loss_finite) ... ok
+test_attraction_loss_finite (test_anchor_components.TestAnchorComponents.test_attraction_loss_finite) ... ok
+test_encoder_output_shape (test_anchor_components.TestAnchorComponents.test_encoder_output_shape) ... ok
+test_knn_graph_shape (test_anchor_components.TestAnchorComponents.test_knn_graph_shape) ... ok
+test_total_loss_computation (test_anchor_components.TestAnchorComponents.test_total_loss_computation) ... ok
+test_client_local_training_step (test_anchor_training.TestAnchorTraining.test_client_local_training_step) ... ok
+test_local_anchors_update (test_anchor_training.TestAnchorTraining.test_local_anchors_update) ... ok
+test_other_anchors_no_gradients (test_anchor_training.TestAnchorTraining.test_other_anchors_no_gradients) ... ok
+test_repulsion_produces_encoder_gradients (test_anchor_training.TestAnchorTraining.test_repulsion_produces_encoder_gradients) ... ok
+test_anchor_storage_independent (test_federated_anchor.TestFederatedAnchor.test_anchor_storage_independent) ... ok
+test_end_to_end_toy_experiment (test_federated_anchor.TestFederatedAnchor.test_end_to_end_toy_experiment) ... ok
+test_fedavg_weighted_aggregation (test_federated_anchor.TestFederatedAnchor.test_fedavg_weighted_aggregation) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 5.912s
+
+OK

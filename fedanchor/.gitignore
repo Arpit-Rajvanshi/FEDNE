@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Secrets
+.env
+*.pem
+*.key
+secrets/
+
+# Large checkpoints / models
+checkpoints/*.pt
+!checkpoints/controlled_ablation/
+outputs/controlled_benchmark/execution_log.txt
+outputs/controlled_ablation/execution_log.txt
+outputs/review/test_log_temp.txt
+
+# Keep output directories but ignore large raw data if any
+# (Note: CSVs, configs, and reports are EXPLICITLY ALLOWED by not being ignored here)

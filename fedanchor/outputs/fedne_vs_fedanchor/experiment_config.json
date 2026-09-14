@@ -1,0 +1,29 @@
+{
+  "common": {
+    "dataset": "MNIST",
+    "num_clients": 2,
+    "partition": "iid",
+    "rounds": 20,
+    "local_epochs": 1,
+    "optimizer": "Adam",
+    "lr": 0.001,
+    "batch_size": 32,
+    "encoder_architecture": [
+      784,
+      512,
+      256,
+      128,
+      2
+    ],
+    "seed": 42,
+    "eval_subset_size": 2000
+  },
+  "fedanchor_specific": {
+    "num_anchors": 5,
+    "initialization": "kmeans",
+    "lambda_attraction": 1.0,
+    "lambda_anchor": 1.0,
+    "lambda_anchor_repulsion": 1.0,
+    "repulsion_scale": 0.01
+  }
+}

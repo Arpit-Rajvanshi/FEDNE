@@ -1,0 +1,49 @@
+dataset:
+  name: "MNIST"
+  data_dir: "./data"
+  num_clients: 2
+  partition: "iid"
+  alpha: 0.5
+  max_samples_per_client: 100  # fast subset for tests
+
+model:
+  input_dim: 784
+  embedding_dim: 2
+  hidden_dims: [512, 256, 128]
+  embedding_regularization:
+    enabled: false
+    coefficient: 0.001
+
+anchors:
+  num_anchors: 5
+  initialization: "kmeans"  # Options: kmeans, farthest_point, representative_points
+
+loss:
+  lambda_attraction: 1.0
+  lambda_anchor: 1.0
+  lambda_anchor_repulsion: 1.0
+  eps: 1e-7
+  anchor_repulsion:
+    normalization: "scale"
+    scale: 0.01
+  balancing:
+    enabled: false
+
+training:
+  rounds: 2
+  local_epochs: 1
+  batch_size: 16
+  learning_rate: 0.001
+  max_grad_norm: 1.0
+
+graph:
+  k: 5
+
+seed:
+  value: 42
+
+evaluation:
+  enabled: true
+  save_visualizations: true
+  output_dir: "./fedanchor/outputs/test_run"
+  checkpoint_dir: "./fedanchor/checkpoints/test_run"

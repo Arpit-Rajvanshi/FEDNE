@@ -1,0 +1,33 @@
+{
+  "dataset": {
+    "name": "MNIST",
+    "data_dir": "./data",
+    "num_clients": 2,
+    "partition": "iid"
+  },
+  "anchors": {
+    "num_anchors": 5,
+    "initialization": "kmeans"
+  },
+  "training": {
+    "rounds": 20,
+    "local_epochs": 1,
+    "learning_rate": 0.001
+  },
+  "loss": {
+    "lambda_attraction": 1.0,
+    "lambda_anchor": 1.0,
+    "lambda_anchor_repulsion": 1.0,
+    "anchor_repulsion": {
+      "normalization": "scale",
+      "scale": 0.01
+    }
+  },
+  "seed": {
+    "value": 42
+  },
+  "evaluation": {
+    "output_dir": "D:\\FEDNE\\fedanchor\\outputs\\controlled_benchmark\\fedanchor",
+    "checkpoint_dir": "D:\\FEDNE\\fedanchor\\outputs\\controlled_benchmark\\fedanchor"
+  }
+}

@@ -1,0 +1,25 @@
+# FINAL RESULTS TABLE
+# Source: fedne_vs_fedanchor/fedne_results.csv and fedanchor_results.csv
+# All values taken directly from CSV files. No rounding applied to raw values.
+#
+# IMPORTANT NOTE ON kNN ACCURACY:
+# FEDNE measures kNN accuracy by splitting 2000 test embeddings 80/20.
+# FEDANCHOR measures kNN accuracy using all 60,000 training embeddings to fit kNN, all 10,000 test embeddings to score.
+# These are NOT the same protocol. Direct comparison is NOT valid for kNN accuracy.
+#
+# TRUSTWORTHINESS and CONTINUITY are computed on a 2000-sample subset in both cases.
+# These are comparable.
+
+metric,fedne_round20,fedanchor_round20,difference_fedanchor_minus_fedne,interpretation
+kNN_Accuracy_percent,90.5,20.52,-69.98,"NOT COMPARABLE: different protocols (see above)"
+Trustworthiness,0.9331625,0.6268385,-0.3063240,"FEDNE higher: embeddings better preserve local structure"
+Continuity,0.9573764,0.7759925,-0.1813839,"FEDNE higher: embedding better preserves high-dim neighborhoods"
+Loss_round20,0.4394781,0.0542618,-0.3852163,"FEDANCHOR lower total loss (different loss formulation)"
+Attraction_round20,0.2360490,0.0000162,-0.2360328,"FEDANCHOR attraction near-zero (full-batch regime)"
+Anchor_Coverage_Mean_Dist,N/A,0.1047,N/A,"FEDANCHOR only — mean distance to nearest anchor"
+Anchor_Utilization_Top_Anchor,N/A,88.8%,N/A,"FEDANCHOR only — single anchor dominates"
+Rounds_run,20,20,0,"Same number of rounds"
+Encoder_Architecture,784-512-256-128-2,784-512-256-128-2,same,"Architectures match"
+Dataset,MNIST_IID,MNIST_IID,same,"Same dataset and partition"
+Num_Clients,2,2,same,"Same number of clients"
+Seed,42,42,same,"Same random seed"

@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-08-19 00:40:11",
+  "python_version": "3.11.0rc1 (main, Aug  8 2022, 11:30:54) [MSC v.1932 64 bit (AMD64)]",
+  "pytorch_version": "2.13.0+cpu",
+  "sklearn_version": "1.9.0",
+  "numpy_version": "2.4.6",
+  "device": "cpu",
+  "dataset_manifest": {
+    "dataset_name": "MNIST",
+    "total_samples": 70000,
+    "train_samples": 60000,
+    "test_samples": 10000,
+    "eval_subset_size": 2000,
+    "num_clients": 2,
+    "samples_per_client": [
+      30000,
+      30000
+    ],
+    "input_dim": 784,
+    "embedding_dim": 2,
+    "partition_type": "iid",
+    "random_seed": 42,
+    "rounds": 20,
+    "local_epochs": 1
+  },
+  "experiment_config": {
+    "common": {
+      "dataset": "MNIST",
+      "num_clients": 2,
+      "partition": "iid",
+      "rounds": 20,
+      "local_epochs": 1,
+      "optimizer": "Adam",
+      "lr": 0.001,
+      "batch_size": 32,
+      "encoder_architecture": [
+        784,
+        512,
+        256,
+        128,
+        2
+      ],
+      "seed": 42,
+      "eval_subset_size": 2000
+    },
+    "fedanchor_specific": {
+      "num_anchors": 5,
+      "initialization": "kmeans",
+      "lambda_attraction": 1.0,
+      "lambda_anchor": 1.0,
+      "lambda_anchor_repulsion": 1.0,
+      "repulsion_scale": 0.01
+    }
+  }
+}
