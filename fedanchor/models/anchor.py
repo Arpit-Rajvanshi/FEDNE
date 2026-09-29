@@ -92,3 +92,48 @@ class AnchorSet(nn.Module):
         Returns tensor of anchors of shape [K, 2].
         """
         return self.anchors
+
+
+def summarize_embeddings_as_anchors(
+    embeddings: np.ndarray,
+    num_anchors: int,
+    seed: int = 42,
+    init_centers: Optional[np.ndarray] = None,
+    max_points: int = 20000,
+):
+    """
+    v2 anchors: summarise a client's 2D embedding distribution with K weighted, smoothed anchors.
+
+    Runs K-Means on the client's current 2D embeddings and returns, per anchor:
+      centers [K, 2]  - cluster centroid (the anchor position a_k)
+      counts  [K]     - number of local points assigned to a_k (anchor mass)
+      spreads [K]     - mean squared distance of assigned points to a_k (anchor smoothing s_k^2)
+
+    Anchors are re-fitted every round instead of being learned by gradient descent, so they
+    cannot collapse onto a single dominant anchor. Only these 4*K scalars are shared.
+    """
+    rng = np.random.RandomState(seed)
+    Z = np.asarray(embeddings, dtype=np.float64)
+    N = Z.shape[0]
+    K = int(min(num_anchors, N))
+    fit_Z = Z[rng.choice(N, max_points, replace=False)] if N > max_points else Z
+
+    if init_centers is not None and init_centers.shape == (K, Z.shape[1]):
+        km = KMeans(n_clusters=K, init=init_centers.astype(np.float64), n_init=1, max_iter=100, random_state=seed)
+    else:
+        km = KMeans(n_clusters=K, n_init=3, max_iter=100, random_state=seed)
+    km.fit(fit_Z)
+    centers = km.cluster_centers_
+
+    labels = km.predict(Z)
+    counts = np.bincount(labels, minlength=K).astype(np.float64)
+    sq = np.sum((Z - centers[labels]) ** 2, axis=1)
+    spreads = np.bincount(labels, weights=sq, minlength=K) / np.maximum(counts, 1.0)
+
+    if K < num_anchors:  # pad with zero-mass anchors
+        pad = num_anchors - K
+        centers = np.vstack([centers, np.tile(centers[:1], (pad, 1))])
+        counts = np.concatenate([counts, np.zeros(pad)])
+        spreads = np.concatenate([spreads, np.zeros(pad)])
+
+    return centers.astype(np.float32), counts.astype(np.float32), spreads.astype(np.float32)

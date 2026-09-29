@@ -60,12 +60,22 @@ class FederatedAnchorTrainer:
                 seed=seed_val
             )
             self.clients.append(client)
+
+        # v2: federation-wide size |D| for FEDNE-style |D_m|/|D| scaling
+        total_n = sum(c.num_samples for c in self.clients)
+        for c in self.clients:
+            c.total_samples = total_n
+            self.server.client_sizes[c.client_id] = c.num_samples
             
         eval_cfg = self.config.get("evaluation", {})
         self.output_dir = eval_cfg.get("output_dir", "./fedanchor/outputs")
         self.checkpoint_dir = eval_cfg.get("checkpoint_dir", "./fedanchor/checkpoints")
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.checkpoint_dir, exist_ok=True)
+
+    def scalars_per_anchor(self) -> int:
+        # v2 shares (x, y, mass, spread) per anchor; legacy shares (x, y)
+        return 4 if self.config.get("training", {}).get("mode", "fullbatch") == "neighbor_embedding" else 2
 
     def _update_dict_recursive(self, target: dict, source: dict) -> None:
         for k, v in source.items():
@@ -80,7 +90,8 @@ class FederatedAnchorTrainer:
         
         comm_stats = self.server.compute_communication_bytes(
             num_clients=self.num_clients,
-            num_anchors=anc_num
+            num_anchors=anc_num,
+            scalars_per_anchor=self.scalars_per_anchor()
         )
         
         history: List[Dict[str, Any]] = []
@@ -100,10 +111,11 @@ class FederatedAnchorTrainer:
                     global_encoder_state=global_state,
                     other_anchors_tensor=other_anc,
                     config=self.config,
-                    round_num=r
+                    round_num=r,
+                    other_anchor_meta=self.server.get_other_anchor_meta(client.client_id)
                 )
                 
-                self.server.update_client_anchors(client.client_id, up_anc)
+                self.server.update_client_anchors(client.client_id, up_anc, meta=client.anchor_meta)
                 
                 client_states.append(up_state)
                 client_counts.append(client.num_samples)
@@ -130,7 +142,7 @@ class FederatedAnchorTrainer:
                 X_train_low_list = []
                 y_train_list = []
                 for client in self.clients:
-                    emb = client.encoder(client.X_tensor).cpu().numpy()
+                    emb = client.embed_local().cpu().numpy()
                     client_embs_low.append(emb)
                     X_train_low_list.append(emb)
                     y_train_list.append(client.y_train)

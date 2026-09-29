@@ -19,6 +19,9 @@ class AnchorServer:
         self.device = torch.device(device)
         self.global_encoder = Encoder(input_dim=input_dim, embedding_dim=embedding_dim).to(self.device)
         self.client_anchors: Dict[int, torch.Tensor] = {}
+        # v2: per-client anchor masses (cluster sizes) and spreads, plus client dataset sizes
+        self.client_anchor_meta: Dict[int, Dict[str, torch.Tensor]] = {}
+        self.client_sizes: Dict[int, int] = {}
 
     def get_global_encoder_state(self) -> Dict[str, torch.Tensor]:
         return {k: v.cpu().clone() for k, v in self.global_encoder.state_dict().items()}
@@ -54,14 +57,35 @@ class AnchorServer:
                 
         self.global_encoder.load_state_dict(avg_state)
 
-    def update_client_anchors(self, client_id: int, anchors_tensor: torch.Tensor) -> None:
+    def update_client_anchors(self, client_id: int, anchors_tensor: torch.Tensor,
+                              meta: Dict[str, torch.Tensor] = None) -> None:
         self.client_anchors[client_id] = anchors_tensor.detach().cpu().clone()
+        if meta is not None:
+            self.client_anchor_meta[client_id] = {k: v.detach().cpu().clone() for k, v in meta.items()}
+
+    def get_other_anchor_meta(self, target_client_id: int):
+        """
+        v2: weights and spreads aligned with get_other_anchors(target_client_id).
+        weight_k = (#points of client m' in anchor k) / |D|, so that summed over a client's anchors
+        it equals the FEDNE scaling |D_m'| / |D|.
+        Returns None if any other client has not uploaded anchor metadata yet.
+        """
+        others = [cid for cid in self.client_anchors.keys() if cid != target_client_id]
+        if len(others) == 0 or any(cid not in self.client_anchor_meta for cid in others):
+            return None
+        total = float(sum(self.client_sizes.values())) if self.client_sizes else None
+        if not total:
+            total = float(sum(m["counts"].sum().item() for m in self.client_anchor_meta.values()))
+        weights = torch.cat([self.client_anchor_meta[c]["counts"] for c in others]) / total
+        spreads = torch.cat([self.client_anchor_meta[c]["spreads"] for c in others])
+        return {"weights": weights.to(self.device), "spreads": spreads.to(self.device)}
 
     def compute_communication_bytes(
         self,
         num_clients: int,
         num_anchors: int,
-        precision_bytes: int = 4
+        precision_bytes: int = 4,
+        scalars_per_anchor: int = 2
     ) -> Dict[str, Any]:
         """
         Compute communication volume per round with explicit separation of Encoder vs Anchor transfer bytes.
@@ -69,7 +93,7 @@ class AnchorServer:
         encoder_params = sum(p.numel() for p in self.global_encoder.parameters())
         encoder_bytes_per_client = encoder_params * precision_bytes
         
-        anchor_scalars_per_client = num_anchors * 2
+        anchor_scalars_per_client = num_anchors * scalars_per_anchor
         anchor_bytes_per_client = anchor_scalars_per_client * precision_bytes
         
         encoder_upload_total = num_clients * encoder_bytes_per_client

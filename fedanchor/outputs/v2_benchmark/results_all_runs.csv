@@ -1,0 +1,141 @@
+partition,method,round,knn_accuracy,trustworthiness,continuity
+iid,FEDNE,1,0.59,0.8325,0.9501
+iid,FEDNE,2,0.729,0.8819,0.9569
+iid,FEDNE,3,0.795,0.9071,0.9599
+iid,FEDNE,4,0.828,0.9121,0.9583
+iid,FEDNE,5,0.8485,0.9197,0.9601
+iid,FEDNE,6,0.8675,0.9205,0.9603
+iid,FEDNE,7,0.8635,0.9252,0.96
+iid,FEDNE,8,0.8845,0.9289,0.9595
+iid,FEDNE,9,0.8865,0.9283,0.9596
+iid,FEDNE,10,0.888,0.9304,0.9592
+iid,FEDNE,11,0.8985,0.9341,0.9595
+iid,FEDNE,12,0.904,0.9327,0.9595
+iid,FEDNE,13,0.8935,0.9353,0.9594
+iid,FEDNE,14,0.915,0.934,0.9596
+iid,FEDNE,15,0.906,0.9342,0.9593
+iid,FEDNE,16,0.9095,0.9346,0.9589
+iid,FEDNE,17,0.911,0.9356,0.9592
+iid,FEDNE,18,0.9105,0.9371,0.9594
+iid,FEDNE,19,0.911,0.937,0.9597
+iid,FEDNE,20,0.9155,0.9371,0.96
+iid,FEDANCHOR v2,1,0.5665,0.8155,0.9421
+iid,FEDANCHOR v2,2,0.749,0.8787,0.9565
+iid,FEDANCHOR v2,3,0.8085,0.9038,0.9588
+iid,FEDANCHOR v2,4,0.855,0.9144,0.959
+iid,FEDANCHOR v2,5,0.856,0.9169,0.9586
+iid,FEDANCHOR v2,6,0.8855,0.9214,0.9582
+iid,FEDANCHOR v2,7,0.8745,0.9273,0.9578
+iid,FEDANCHOR v2,8,0.8855,0.9281,0.9577
+iid,FEDANCHOR v2,9,0.89,0.9306,0.9581
+iid,FEDANCHOR v2,10,0.8965,0.9328,0.9579
+iid,FEDANCHOR v2,11,0.8955,0.9321,0.9577
+iid,FEDANCHOR v2,12,0.9005,0.9332,0.9577
+iid,FEDANCHOR v2,13,0.9,0.9342,0.9582
+iid,FEDANCHOR v2,14,0.902,0.9358,0.9581
+iid,FEDANCHOR v2,15,0.9085,0.9336,0.9583
+iid,FEDANCHOR v2,16,0.9045,0.9365,0.9577
+iid,FEDANCHOR v2,17,0.9165,0.9366,0.9571
+iid,FEDANCHOR v2,18,0.9135,0.935,0.9573
+iid,FEDANCHOR v2,19,0.911,0.9358,0.9583
+iid,FEDANCHOR v2,20,0.913,0.9359,0.9572
+iid,FEDANCHOR v2 (no anchor repulsion),1,0.5615,0.8308,0.9475
+iid,FEDANCHOR v2 (no anchor repulsion),2,0.7045,0.8827,0.9572
+iid,FEDANCHOR v2 (no anchor repulsion),3,0.7865,0.9068,0.9587
+iid,FEDANCHOR v2 (no anchor repulsion),4,0.8385,0.9179,0.9583
+iid,FEDANCHOR v2 (no anchor repulsion),5,0.875,0.9209,0.9588
+iid,FEDANCHOR v2 (no anchor repulsion),6,0.8815,0.9283,0.9588
+iid,FEDANCHOR v2 (no anchor repulsion),7,0.882,0.9287,0.9585
+iid,FEDANCHOR v2 (no anchor repulsion),8,0.8865,0.9323,0.9581
+iid,FEDANCHOR v2 (no anchor repulsion),9,0.894,0.9304,0.9582
+iid,FEDANCHOR v2 (no anchor repulsion),10,0.91,0.9331,0.958
+iid,FEDANCHOR v2 (no anchor repulsion),11,0.9075,0.9333,0.9573
+iid,FEDANCHOR v2 (no anchor repulsion),12,0.9155,0.9332,0.9583
+iid,FEDANCHOR v2 (no anchor repulsion),13,0.909,0.9347,0.9583
+iid,FEDANCHOR v2 (no anchor repulsion),14,0.913,0.9333,0.9581
+iid,FEDANCHOR v2 (no anchor repulsion),15,0.9095,0.9374,0.9577
+iid,FEDANCHOR v2 (no anchor repulsion),16,0.91,0.9335,0.9582
+iid,FEDANCHOR v2 (no anchor repulsion),17,0.9115,0.9382,0.9576
+iid,FEDANCHOR v2 (no anchor repulsion),18,0.926,0.9362,0.957
+iid,FEDANCHOR v2 (no anchor repulsion),19,0.927,0.9391,0.9583
+iid,FEDANCHOR v2 (no anchor repulsion),20,0.9205,0.9364,0.9576
+dirichlet0.1,FEDNE,1,0.4505,0.7795,0.9399
+dirichlet0.1,FEDNE,2,0.5425,0.8483,0.9538
+dirichlet0.1,FEDNE,3,0.6,0.8617,0.9568
+dirichlet0.1,FEDNE,4,0.627,0.8755,0.9574
+dirichlet0.1,FEDNE,5,0.644,0.8805,0.9532
+dirichlet0.1,FEDNE,6,0.668,0.8916,0.9575
+dirichlet0.1,FEDNE,7,0.6685,0.8948,0.9575
+dirichlet0.1,FEDNE,8,0.6745,0.8977,0.9574
+dirichlet0.1,FEDNE,9,0.694,0.9048,0.9572
+dirichlet0.1,FEDNE,10,0.692,0.8984,0.9562
+dirichlet0.1,FEDNE,11,0.714,0.9011,0.9574
+dirichlet0.1,FEDNE,12,0.714,0.9021,0.9573
+dirichlet0.1,FEDNE,13,0.7145,0.902,0.9563
+dirichlet0.1,FEDNE,14,0.724,0.9011,0.9561
+dirichlet0.1,FEDNE,15,0.7245,0.903,0.9571
+dirichlet0.1,FEDNE,16,0.7145,0.9063,0.955
+dirichlet0.1,FEDNE,17,0.714,0.9037,0.9537
+dirichlet0.1,FEDNE,18,0.719,0.903,0.9555
+dirichlet0.1,FEDNE,19,0.7385,0.9015,0.9552
+dirichlet0.1,FEDNE,20,0.7285,0.9028,0.9555
+dirichlet0.1,FEDANCHOR v2,1,0.444,0.7716,0.9282
+dirichlet0.1,FEDANCHOR v2,2,0.5335,0.8317,0.9451
+dirichlet0.1,FEDANCHOR v2,3,0.5995,0.8611,0.9512
+dirichlet0.1,FEDANCHOR v2,4,0.6295,0.8576,0.9532
+dirichlet0.1,FEDANCHOR v2,5,0.6485,0.8717,0.9537
+dirichlet0.1,FEDANCHOR v2,6,0.656,0.8717,0.9531
+dirichlet0.1,FEDANCHOR v2,7,0.7055,0.8773,0.9533
+dirichlet0.1,FEDANCHOR v2,8,0.708,0.8798,0.9531
+dirichlet0.1,FEDANCHOR v2,9,0.7015,0.8789,0.9535
+dirichlet0.1,FEDANCHOR v2,10,0.6985,0.8814,0.9532
+dirichlet0.1,FEDANCHOR v2,11,0.707,0.8796,0.9524
+dirichlet0.1,FEDANCHOR v2,12,0.7365,0.8818,0.9519
+dirichlet0.1,FEDANCHOR v2,13,0.724,0.8825,0.9525
+dirichlet0.1,FEDANCHOR v2,14,0.7555,0.8876,0.952
+dirichlet0.1,FEDANCHOR v2,15,0.7525,0.886,0.9519
+dirichlet0.1,FEDANCHOR v2,16,0.7525,0.8872,0.9506
+dirichlet0.1,FEDANCHOR v2,17,0.7655,0.889,0.9518
+dirichlet0.1,FEDANCHOR v2,18,0.7735,0.8913,0.9515
+dirichlet0.1,FEDANCHOR v2,19,0.7685,0.8943,0.9512
+dirichlet0.1,FEDANCHOR v2,20,0.7845,0.8893,0.9514
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),1,0.4345,0.7549,0.9256
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),2,0.597,0.8385,0.9477
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),3,0.6685,0.8607,0.9522
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),4,0.642,0.8553,0.9519
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),5,0.696,0.8721,0.954
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),6,0.699,0.8773,0.9525
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),7,0.732,0.8791,0.9532
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),8,0.737,0.8825,0.9525
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),9,0.746,0.8821,0.9516
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),10,0.734,0.8856,0.953
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),11,0.736,0.8854,0.9536
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),12,0.7545,0.887,0.9529
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),13,0.757,0.8942,0.9543
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),14,0.768,0.9012,0.955
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),15,0.7535,0.8991,0.9545
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),16,0.7585,0.8983,0.9524
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),17,0.7545,0.8968,0.9527
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),18,0.7555,0.8995,0.9537
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),19,0.76,0.9055,0.9535
+dirichlet0.1,FEDANCHOR v2 (sampled estimator),20,0.761,0.9087,0.9528
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),1,0.467,0.7847,0.9359
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),2,0.5535,0.8474,0.9503
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),3,0.5975,0.8663,0.9551
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),4,0.655,0.8763,0.9554
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),5,0.6705,0.8792,0.955
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),6,0.7075,0.8875,0.9544
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),7,0.7125,0.8879,0.9531
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),8,0.707,0.8936,0.9529
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),9,0.6985,0.8961,0.954
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),10,0.7315,0.8971,0.9529
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),11,0.7385,0.8981,0.9526
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),12,0.758,0.897,0.9526
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),13,0.718,0.8997,0.9514
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),14,0.76,0.9006,0.9512
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),15,0.7645,0.9069,0.9535
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),16,0.766,0.9043,0.952
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),17,0.757,0.9021,0.9525
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),18,0.7555,0.9014,0.9528
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),19,0.751,0.9053,0.952
+dirichlet0.1,FEDANCHOR v2 (no anchor repulsion),20,0.756,0.9058,0.9536

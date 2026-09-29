@@ -14,22 +14,36 @@ model:
     coefficient: 0.001
 
 anchors:
-  num_anchors: 5
-  initialization: "kmeans"  # Options: kmeans, farthest_point, representative_points
+  num_anchors: 32           # v2: K-Means summary anchors, re-fitted every round (4*K floats shared per client)
+  initialization: "kmeans"  # legacy fullbatch mode only: kmeans, farthest_point, representative_points
+
+training:
+  mode: "neighbor_embedding"  # v2 (recommended). "fullbatch" = original Phase-2 prototype
+  rounds: 20
+  local_epochs: 1
+  batch_size: 512             # edges per mini-batch (same as FEDNE)
+  learning_rate: 0.001
+  max_grad_norm: 1.0
+  lr_decay_rounds: []
+  lr_decay_factor: 0.1
 
 loss:
   lambda_attraction: 1.0
-  lambda_anchor: 1.0
+  lambda_local_repulsion: 1.0   # v2: FEDNE-style local negative-sample repulsion, scaled by |D_m|/|D|
+  lambda_anchor: 1.0            # legacy fullbatch mode only (coverage loss)
   lambda_anchor_repulsion: 1.0
   eps: 1e-7
   anchor_repulsion:
-    normalization: "scale"  # Options: none, scale
-    scale: 0.01             # Configurable scale factor for repulsion
+    normalization: "none"   # v2 uses mass-weighted anchors, no ad-hoc scale needed. Options: none, scale
+    scale: 1.0
+    spread_scale: 1.0       # v2: multiplies each anchor's cluster spread s_k^2 (smoothing)
+    start_round: 1
   balancing:
-    enabled: false          # Optional initial loss balancing
+    enabled: false          # legacy fullbatch mode only
 
 graph:
   k: 5
+  negative_samples: 5       # v2: negatives per edge (same as FEDNE b)
 
 seed:
   value: 42

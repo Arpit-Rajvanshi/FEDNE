@@ -99,7 +99,8 @@ class ControlledFEDANCHORTrainer(FEDANCHOR_Trainer):
         # Mostly identical to original train, but overrides the eval metrics calculation
         rounds = self.config.get("training", {}).get("rounds", 2)
         anc_num = self.config.get("anchors", {}).get("num_anchors", 5)
-        comm_stats = self.server.compute_communication_bytes(num_clients=self.num_clients, num_anchors=anc_num)
+        comm_stats = self.server.compute_communication_bytes(num_clients=self.num_clients, num_anchors=anc_num,
+                                                             scalars_per_anchor=self.scalars_per_anchor())
         history = []
         start_time = time.time()
         
@@ -117,9 +118,10 @@ class ControlledFEDANCHORTrainer(FEDANCHOR_Trainer):
                     global_encoder_state=global_state,
                     other_anchors_tensor=other_anc,
                     config=self.config,
-                    round_num=r
+                    round_num=r,
+                    other_anchor_meta=self.server.get_other_anchor_meta(client.client_id)
                 )
-                self.server.update_client_anchors(client.client_id, up_anc)
+                self.server.update_client_anchors(client.client_id, up_anc, meta=client.anchor_meta)
                 client_states.append(up_state)
                 client_counts.append(client.num_samples)
                 round_metrics_list.append(metrics)
@@ -151,7 +153,7 @@ class ControlledFEDANCHORTrainer(FEDANCHOR_Trainer):
             with torch.no_grad():
                 X_train_low_list = []
                 for client in self.clients:
-                    emb = client.encoder(client.X_tensor).cpu().numpy()
+                    emb = client.embed_local().cpu().numpy()
                     X_train_low_list.append(emb)
                 X_train_low = np.concatenate(X_train_low_list, axis=0)
             
@@ -173,6 +175,8 @@ class ControlledFEDANCHORTrainer(FEDANCHOR_Trainer):
             }
             
             round_elapsed = time.time() - round_start
+            print(f"[FEDANCHOR round {r:02d}] loss={avg_loss:.4f} att={avg_att:.4f} "
+                  f"anc_rep={avg_rep_scaled:.4f} | kNN={knn_acc:.4f} T={t:.4f} C={c:.4f} | {round_elapsed:.1f}s", flush=True)
             
             round_info = {
                 "round": r,
@@ -250,13 +254,15 @@ def run_fedne():
 def run_fedanchor():
     override = {
         "dataset": {"name": "MNIST", "data_dir": "./data", "num_clients": 2, "partition": "iid"},
-        "anchors": {"num_anchors": 5, "initialization": "kmeans"},
-        "training": {"rounds": 20, "local_epochs": 1, "learning_rate": 0.001},
+        "anchors": {"num_anchors": 32},
+        "training": {"mode": "neighbor_embedding", "rounds": 20, "local_epochs": 1,
+                     "learning_rate": 0.001, "batch_size": 512},
+        "graph": {"k": 5, "negative_samples": 5},
         "loss": {
             "lambda_attraction": 1.0,
-            "lambda_anchor": 1.0,
+            "lambda_local_repulsion": 1.0,
             "lambda_anchor_repulsion": 1.0,
-            "anchor_repulsion": {"normalization": "scale", "scale": 0.01}
+            "anchor_repulsion": {"normalization": "none", "scale": 1.0, "spread_scale": 1.0}
         },
         "seed": {"value": 42},
         "evaluation": {"output_dir": os.path.join(OUTPUT_DIR, "fedanchor"), "checkpoint_dir": os.path.join(OUTPUT_DIR, "fedanchor")}
