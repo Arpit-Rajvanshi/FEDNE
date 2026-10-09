@@ -1,0 +1,179 @@
+import torch
+import torch.nn as nn
+from typing import Dict, Tuple, Optional
+from fedanchor.losses.attraction import AttractionLoss
+from fedanchor.losses.anchor_loss import AnchorCoverageLoss
+from fedanchor.v3.losses.anchor_soft_loss import AnchorSoftLoss
+from fedanchor.v3.losses.anchor_spread_loss import AnchorSpreadLoss
+from fedanchor.v4.losses.anchor_balance_loss import AnchorBalanceLoss
+from fedanchor.v4.losses.anchor_separation_loss import AnchorSeparationLoss
+from fedanchor.losses.anchor_repulsion import AnchorRepulsionLoss
+from fedanchor.losses.embedding_reg import EmbeddingRegLoss
+
+class TotalLossV4(nn.Module):
+    """
+    Combined objective function for Federated Anchor V4.
+    L_total = lambda_att * L_att + lambda_anchor * L_soft_anchor + lambda_rep * L_rep_scaled + 
+              lambda_spread * L_spread + lambda_balance * L_balance + lambda_sep * L_sep + lambda_emb_reg * L_emb_reg
+    """
+    def __init__(
+        self,
+        lambda_attraction: float = 1.0,
+        lambda_anchor: float = 1.0,
+        lambda_anchor_repulsion: float = 1.0,
+        lambda_spread: float = 1.0,
+        lambda_balance: float = 0.0,
+        lambda_sep: float = 0.0,
+        lambda_embedding_reg: float = 0.0,
+        margin: float = 0.1,
+        alpha_soft: float = 1.0,
+        normalization: str = "none",
+        scale: float = 1.0,
+        eps: float = 1e-7,
+        balancing_enabled: bool = False,
+        use_attraction: bool = True,
+        use_anchor: bool = True,
+        use_anchor_repulsion: bool = True,
+        use_spread: bool = True,
+        anchor_assignment_type: str = "soft"
+    ) -> None:
+        super(TotalLossV4, self).__init__()
+        self.lambda_attraction = float(lambda_attraction)
+        self.lambda_anchor = float(lambda_anchor)
+        self.lambda_anchor_repulsion = float(lambda_anchor_repulsion)
+        self.lambda_spread = float(lambda_spread)
+        self.lambda_balance = float(lambda_balance)
+        self.lambda_sep = float(lambda_sep)
+        self.lambda_embedding_reg = float(lambda_embedding_reg)
+        self.eps = float(eps)
+        self.balancing_enabled = balancing_enabled
+        
+        self.use_attraction = use_attraction
+        self.use_anchor = use_anchor
+        self.use_anchor_repulsion = use_anchor_repulsion
+        self.use_spread = use_spread
+        self.anchor_assignment_type = anchor_assignment_type
+        
+        self.attraction_fn = AttractionLoss(eps=self.eps)
+        if self.anchor_assignment_type == "hard":
+            self.anchor_fn = AnchorCoverageLoss(eps=self.eps)
+        else:
+            self.anchor_fn = AnchorSoftLoss(alpha=alpha_soft, eps=self.eps)
+            
+        self.anchor_balance_fn = AnchorBalanceLoss(eps=self.eps)
+        self.anchor_repulsion_fn = AnchorRepulsionLoss(normalization=normalization, scale=scale, eps=self.eps)
+        self.anchor_spread_fn = AnchorSpreadLoss(eps=self.eps)
+        self.anchor_separation_fn = AnchorSeparationLoss(margin=margin, eps=self.eps)
+        self.embedding_reg_fn = EmbeddingRegLoss()
+
+        self.balance_factors: Dict[str, float] = {"attraction": 1.0, "anchor": 1.0, "repulsion": 1.0, "spread": 1.0, "balance": 1.0, "sep": 1.0}
+        self.balanced_initialized = False
+
+    def forward(
+        self,
+        embeddings: torch.Tensor,
+        edges: torch.Tensor,
+        local_anchors: torch.Tensor,
+        other_anchors: torch.Tensor,
+        client_id: Optional[int] = None,
+        round_num: Optional[int] = None
+    ) -> Tuple[torch.Tensor, Dict[str, float]]:
+        """
+        Computes total loss and component breakdown with diagnostics ratios.
+        """
+        # 1. Attraction
+        l_att = self.attraction_fn(embeddings, edges) if self.use_attraction else torch.tensor(0.0, device=embeddings.device)
+        
+        # 2. Anchor Assignment
+        q = None
+        if self.use_anchor:
+            if self.anchor_assignment_type == "hard":
+                l_anc = self.anchor_fn(embeddings, local_anchors)
+            else:
+                l_anc, q = self.anchor_fn(embeddings, local_anchors)
+        else:
+            l_anc = torch.tensor(0.0, device=embeddings.device)
+            
+        # 2.5 Anchor Balance
+        l_bal = torch.tensor(0.0, device=embeddings.device)
+        u_vals = []
+        if self.lambda_balance > 0 and q is not None:
+            l_bal, u_tensor = self.anchor_balance_fn(q)
+            u_vals = u_tensor.detach().cpu().tolist()
+            
+        # 3. Cross-Client Anchor Repulsion
+        if self.use_anchor_repulsion:
+            l_rep_scaled, rep_dict = self.anchor_repulsion_fn(embeddings, other_anchors)
+            l_rep_raw_val = rep_dict["repulsion_raw"]
+            l_rep_scaled_val = rep_dict["repulsion_scaled"]
+        else:
+            l_rep_scaled = torch.tensor(0.0, device=embeddings.device)
+            l_rep_raw_val = 0.0
+            l_rep_scaled_val = 0.0
+            
+        # 4. Anchor Spread (Local Anchor Repulsion)
+        l_spread = self.anchor_spread_fn(local_anchors) if self.use_spread else torch.tensor(0.0, device=embeddings.device)
+        
+        # 4.5 Explicit Geometric Separation
+        l_sep = self.anchor_separation_fn(local_anchors) if self.lambda_sep > 0 else torch.tensor(0.0, device=embeddings.device)
+            
+        # 5. Embedding Regularization
+        l_reg = self.embedding_reg_fn(embeddings) if self.lambda_embedding_reg > 0 else torch.tensor(0.0, device=embeddings.device)
+
+        # Automatic initial loss balancing if enabled
+        if self.balancing_enabled and not self.balanced_initialized:
+            with torch.no_grad():
+                att_mag = max(l_att.item(), 1e-5)
+                anc_mag = max(l_anc.item(), 1e-5)
+                rep_mag = max(l_rep_scaled.item(), 1e-5)
+                spr_mag = max(l_spread.item(), 1e-5)
+                bal_mag = max(l_bal.item(), 1e-5)
+                sep_mag = max(l_sep.item(), 1e-5)
+                
+                self.balance_factors["attraction"] = 1.0
+                self.balance_factors["anchor"] = att_mag / anc_mag
+                self.balance_factors["repulsion"] = att_mag / rep_mag
+                self.balance_factors["spread"] = att_mag / spr_mag
+                self.balance_factors["balance"] = att_mag / bal_mag
+                self.balance_factors["sep"] = att_mag / sep_mag
+                self.balanced_initialized = True
+
+        b_att = self.balance_factors["attraction"]
+        b_anc = self.balance_factors["anchor"]
+        b_rep = self.balance_factors["repulsion"]
+        b_spr = self.balance_factors["spread"]
+        b_bal = self.balance_factors.get("balance", 1.0)
+        b_sep = self.balance_factors.get("sep", 1.0)
+
+        total = (
+            self.lambda_attraction * b_att * l_att +
+            self.lambda_anchor * b_anc * l_anc +
+            self.lambda_anchor_repulsion * b_rep * l_rep_scaled +
+            self.lambda_spread * b_spr * l_spread +
+            self.lambda_balance * b_bal * l_bal +
+            self.lambda_sep * b_sep * l_sep +
+            self.lambda_embedding_reg * l_reg
+        )
+        
+        if torch.isnan(total) or torch.isinf(total):
+            msg = f"TotalLossV4 evaluated to NaN or Inf on Client {client_id} in Round {round_num}."
+            raise ValueError(msg)
+
+        ratio = l_rep_scaled_val / l_att.item() if l_att.item() > 0 else 0.0
+        ratio_anc = l_rep_scaled_val / l_anc.item() if l_anc.item() > 0 else 0.0
+        
+        breakdown = {
+            "total_loss": total.item(),
+            "attraction_loss": l_att.item(),
+            "anchor_loss": l_anc.item(),
+            "balance_loss": l_bal.item(),
+            "separation_loss": l_sep.item(),
+            "anchor_repulsion_raw": l_rep_raw_val,
+            "anchor_repulsion_scaled": l_rep_scaled_val,
+            "anchor_spread_loss": l_spread.item(),
+            "embedding_reg_loss": l_reg.item(),
+            "repulsion_to_attraction_ratio": ratio,
+            "repulsion_to_anchor_ratio": ratio_anc,
+        }
+        
+        return total, breakdown
